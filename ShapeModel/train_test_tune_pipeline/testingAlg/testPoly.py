@@ -3,13 +3,8 @@ import sys
 import time
 import psutil
 from ultralytics import YOLO
-from functools import reduce
 import os
-<<<<<<< HEAD
 import matplotlib.pyplot as plt
-import numpy as np
-=======
->>>>>>> 61ae7ddd02966f635a9c55330a9ddaf6bc71bf8e
 
 #FUNCTIONS 
 # Validate the model
@@ -22,27 +17,44 @@ def validation(model, dataset, configuration):
                         device = configuration["device"],
                         plots = configuration["plots"],
                         save_json = configuration["save_json"]) 
-    metrics.box.map  # map50-95
-    metrics.box.map50  # map50
-    metrics.box.map75  # map75
-    metrics.box.maps  # a list contains map50-95 of each category
+    # Print specific metrics
+    #print("Class indices with average precision:", metrics.ap_class_index)
+    print("Average precision for all classes:", metrics.box.all_ap)
+    #print("Average precision:", metrics.box.ap)
+    print("Average precision at IoU=0.50:", metrics.box.ap50)
+    #print("Class indices for average precision:", metrics.box.ap_class_index)
+    print("Class-specific results:", metrics.box.class_result)
+    print("F1 score:", metrics.box.f1)
+    print("F1 score curve:", metrics.box.f1_curve)
+    #print("Overall fitness score:", metrics.box.fitness)
+    #print("Mean average precision:", metrics.box.map)
+    print("Mean average precision at IoU=0.50:", metrics.box.map50)
+    print("Mean average precision at IoU=0.75:", metrics.box.map75)
+   #print("Mean average precision for different IoU thresholds:", metrics.box.maps)
+    #print("Mean results for different metrics:", metrics.box.mean_results)
+    print("Mean precision:", metrics.box.mp)
+    print("Mean recall:", metrics.box.mr)
+    print("Precision:", metrics.box.p)
+    print("Precision curve:", metrics.box.p_curve)
+    print("Precision values:", metrics.box.prec_values)
+    print("Specific precision metrics:", metrics.box.px)
+    print("Recall:", metrics.box.r)
+    print("Recall curve:", metrics.box.r_curve)
 
 #process fram for performance
 def process_frame(model, frame, results_memory, results_time, model_name):
         initial_memory = get_ram_usage()
         start_time = time.perf_counter()
-
+        
+        #print("start")
         results = model(frame)
-
+        #print("end")
         end_time = time.perf_counter()
         after_memory = get_ram_usage()
 
+        print(after_memory - initial_memory)
         results_memory[model_name].append(after_memory - initial_memory)
-<<<<<<< HEAD
         results_time[model_name].append(end_time - start_time)
-=======
-        results_time[model_name].append(after_memory - initial_memory)
->>>>>>> 61ae7ddd02966f635a9c55330a9ddaf6bc71bf8e
 
 # Gets ram usage
 def get_ram_usage():
@@ -76,11 +88,14 @@ def process_image(images_path, model, results_memory, results_time, model_name):
     directory = images_path
 
     for filename in os.listdir(directory):
+        #print(filename)
         f = os.path.join(directory, filename)
         # checking if it is a file
         if os.path.isfile(f):
+            #print("start")
             frame = cv2.imread(f)
             if frame is None:
+                
                 print("Error: Could not load image.")
                 return
             else:
@@ -91,7 +106,7 @@ def process_image(images_path, model, results_memory, results_time, model_name):
 
 def main():
     # Initialize models
-    models_directory = 'ShapeModel/test_pipeline/models/'
+    models_directory = 'ShapeModel/train_test_tune_pipeline/models/'
     modelNames = ['yolo11n', 'yolo11s', 'yolo11m', 'yolo11l', 'yolo11x']
 
     results_memory = {
@@ -120,11 +135,11 @@ def main():
         "save_json": True
     }
 
-    dataset_name = "temp.yaml" #change to dataset name
-    dataset_path = "ShapeModel/test_pipeline/data" 
+    dataset_name = "images" #change to dataset name
+    dataset_path = "ShapeModel/train_test_tune_pipeline/data/" +dataset_name
     dataset_yaml = dataset_path + "/" + dataset_name
 
-    #User Inputs: 
+    #User Inputs:  
     #ask if they want default configuration or not for validation?
     config = input("Do you want default configuration? (Y/n): \n")
     if config == 'N'or config == 'n':
@@ -141,13 +156,13 @@ def main():
     elif data_type == 'I' or data_type == 'i':
         print("Image Data Selected/n")
     else:
-        print("Invalid Data Type/n")
+        print("Invalid Data Type\n")
         sys.exit(1)
 
     # Loop through each model
     for model_name in modelNames:
         print(f"Testing model: {model_name}")
-        model_path = models_directory + model_name
+        model_path = models_directory + model_name + ".pt"
         # Load model
         model = YOLO(model_path)
         
@@ -159,15 +174,8 @@ def main():
         else:
             process_image(dataset_path, model, results_memory, results_time, model_name)
             #run accuracy check 
-            validation(model, dataset_yaml, val_configuration)
+            #validation(model, dataset_yaml, val_configuration)
  
-       
-
-    #TODO: display avgs and all data cleanly
-<<<<<<< HEAD
-    #models -------
-    #side: mem, runtime, 4 metrics
-    #Note: display average instead of individual
     # Print out the time data
     
     # Initialize table headers
@@ -176,13 +184,16 @@ def main():
     # Compute avgs
     for model_name in results_time:
         # avg time calc
+        print(sum(results_time[model_name]))
+        print(sum(results_memory[model_name]))
+
         avg_time = sum(results_time[model_name]) / len(results_time[model_name]) 
         # avg mem calc
         avg_memory = sum(results_memory[model_name]) / len(results_memory[model_name]) 
 
         # Add model names and data
         combined_results.append([model_name, f"{avg_time:.4f}", f"{avg_memory:.4f}"])
-        print(f"Model: {model_name}, Avg Time: {avg_time:.4f} seconds, Avg Memory: {avg_memory:.4f} MB")
+        print(f"Model: {model_name}, Avg Time: {avg_time:.4f} seconds, Avg Memory: {avg_memory:.4f} GB")
 
     # Create figure
     fig, ax = plt.subplots()
@@ -195,18 +206,6 @@ def main():
     table.set_fontsize(10)
 
     plt.show()
-=======
-    #Note: display average instead of individual
-    # Print out the time data
-            
-    for names_time in results_time:
-        avg_time = (reduce(lambda a, b: a+b, results_time[names_time]))/2
-        print(f"Model: {results_time[names_time]}, Total inference elapsed Time: {avg_time:.4f} seconds")
-
-    for names_mem in results_memory:
-        avg_mem = (reduce(lambda a, b: a+b, results_time[names_mem]))/2
-        print(f"Model: {results_memory[names_mem]}, Total inference elapsed Time: {avg_mem:.4f} seconds")
->>>>>>> 61ae7ddd02966f635a9c55330a9ddaf6bc71bf8e
 
 
 if __name__ == "__main__":
