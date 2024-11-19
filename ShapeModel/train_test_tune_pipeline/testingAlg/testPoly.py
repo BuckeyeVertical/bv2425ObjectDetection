@@ -82,7 +82,7 @@ def process_image(images_path, model, results_memory, results_time, model_name):
 
 def main():
     # Initialize models
-    models_directory = 'ShapeModel/test_pipeline/models/'
+    models_directory = 'bv2425ObjectDetection/ShapeModel/train_test_tune_pipeline/models'
     modelNames = ['yolo11n', 'yolo11s', 'yolo11m', 'yolo11l', 'yolo11x']
 
     results_memory = {
@@ -150,7 +150,7 @@ def main():
         else:
             process_image(dataset_path, model, results_memory, results_time, model_name)
             #run accuracy check 
-            validation(model, dataset_yaml, val_configuration)
+            #validation(model, dataset_yaml, val_configuration)
  
        
 

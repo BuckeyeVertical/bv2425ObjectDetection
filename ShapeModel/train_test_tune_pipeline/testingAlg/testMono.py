@@ -1,10 +1,10 @@
-import cv2
+import os
 import sys
+import cv2
 import time
 import psutil
 from ultralytics import YOLO
 from functools import reduce
-import os
 
 # FUNCTIONS 
 # Validate the model
@@ -87,20 +87,26 @@ def main():
     # Print current working directory
     print("Current Working Directory:", os.getcwd())
 
-    # Initialize model
-    models_directory = os.path.abspath('ShapeModel/train_test_tune_pipeline/models/')
-    model_name = input("Enter the model name (yolo11n, yolo11s, yolo11m, yolo11l, yolo11x): ")
+    # Ask the user for the model name (e.g., 'yolov8n.pt')
+    model_name_input = input("Enter the model name (with .pt extension): ").strip()
 
-    # Load model
-    model_path = os.path.join(models_directory, model_name + ".pt")  # Assuming the model files have .pt extension
-    if not os.path.isfile(model_path):
+    # Define the relative path for the model and dataset files
+    model_path = f'bv2425ObjectDetection/ShapeModel/train_test_tune_pipeline/models/{model_name_input}'
+    dataset_yaml = 'bv2425ObjectDetection/ShapeModel/train_test_tune_pipeline/data/coco.yaml'
+
+    # Check if the model file exists before loading it
+    if not os.path.exists(model_path):
         print(f"Error: Model file '{model_path}' does not exist.")
-        sys.exit(1)
+        sys.exit(1)  # Exit if model does not exist
 
-    model = YOLO(model_path)  # Load the YOLO model
+    # If model exists, print the path and load the model
+    print(f"Model file found at: {model_path}")
 
-    results_memory = {model_name: []}
-    results_time = {model_name: []}
+    # Load the YOLO model (it will not download the model if it exists at the given path)
+    model = YOLO(model_path)
+
+    results_memory = {model_name_input: []}
+    results_time = {model_name_input: []}
 
     val_configuration = {
         "imgsz": 640,
@@ -111,10 +117,6 @@ def main():
         "plots": True,
         "save_json": True
     }
-
-    dataset_name = "coco.yaml"  # Change to dataset name
-    dataset_path = os.path.abspath('ShapeModel/train_test_tune_pipeline/data/')
-    dataset_yaml = os.path.join(dataset_path, dataset_name)
 
     print("Model path:", model_path)
     print("Dataset YAML path:", dataset_yaml)
@@ -134,28 +136,28 @@ def main():
     if data_type in ['V', 'v']:
         print("Video Data Selected\n")
         video_path = input("Enter the path to the video file: ")
-        process_video(video_path, model, results_memory, results_time, model_name)
+        process_video(video_path, model, results_memory, results_time, model_name_input)
     elif data_type in ['I', 'i']:
         print("Image Data Selected\n")
-        process_image(dataset_path, model, results_memory, results_time, model_name)
+        process_image('bv2425ObjectDetection/ShapeModel/train_test_tune_pipeline/data/', model, results_memory, results_time, model_name_input)
         # Run accuracy check 
-        validation(model, dataset_yaml, val_configuration)
+        #validation(model, dataset_yaml, val_configuration)
     else:
         print("Invalid Data Type\n")
         sys.exit(1)
 
     # Print out the time data
-    if results_time[model_name]:
-        avg_time = (reduce(lambda a, b: a + b, results_time[model_name])) / len(results_time[model_name])
-        print(f"Model: {model_name}, Total inference elapsed Time: {avg_time:.4f} seconds")
+    if results_time[model_name_input]:
+        avg_time = (reduce(lambda a, b: a + b, results_time[model_name_input])) / len(results_time[model_name_input])
+        print(f"Model: {model_name_input}, Total inference elapsed Time: {avg_time:.4f} seconds")
     else:
-        print(f"No time data collected for model: {model_name}")
+        print(f"No time data collected for model: {model_name_input}")
 
-    if results_memory[model_name]:
-        avg_mem = (reduce(lambda a, b: a + b, results_memory[model_name])) / len(results_memory[model_name])
-        print(f"Model: {model_name}, Total memory usage: {avg_mem:.4f} MB")
+    if results_memory[model_name_input]:
+        avg_mem = (reduce(lambda a, b: a + b, results_memory[model_name_input])) / len(results_memory[model_name_input])
+        print(f"Model: {model_name_input}, Total memory usage: {avg_mem:.4f} MB")
     else:
-        print(f"No memory data collected for model: {model_name}")
+        print(f"No memory data collected for model: {model_name_input}")
 
 if __name__ == "__main__":
     main()
