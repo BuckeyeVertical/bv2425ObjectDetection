@@ -1,23 +1,29 @@
 from ultralytics import YOLO
-import os
+import os, torch
+
+
+torch.cuda.empty_cache()
 
 #load the model
-model = YOLO("yolov8m.pt")#loads nano detection YOLO version 8 neural network
+model = YOLO("yolo11m.pt")#loads nano detection YOLO version 8 neural network
 
-n_epochs = 50
-bs = -1
-gpu_id = 0, 1
-imgSize = 640
+yaml_path = 'C:\\Users\\smbro\\repos\\bv2425ObjectDetection\\ShapeModel\\Training\\data1.yaml'
+
+n_epochs = 30
+bs = 4
+gpu_id = 0
+imgSize = 1920
 waitNum = 5
-workerNum = os.cpu_count()
+workerNum = 1
 OptimizerChoice = 'auto'
 validate = True
 
 #Train
-results = model.train(data = "data.yaml",
+if __name__ == '__main__':
+    results = model.train(data = yaml_path,
                       imgsz = imgSize,
                       pretrained = True,
-                      name = "CharModel1",
+                      name = "dev11_01",
                       cos_lr=True,
                       #lr0=0.00269,
                       #lrf=0.00288,
@@ -30,4 +36,4 @@ results = model.train(data = "data.yaml",
                       val = validate,
                       workers = workerNum,)
 #config file draws in the path and training data along with the validation info
-#epochs in number of training phases so more the better  Estimation = 100-300
+

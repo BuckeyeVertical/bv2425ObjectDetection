@@ -1,0 +1,13 @@
+path: ImageClassifier
+train: .\train\images # the location of the training images !DO NOT CHANGE!
+val: .\valid\images # the location of the validation images !DO NOT CHANGE!
+#test: /home/ubuntu/data/test/images # the location of the testing images !DO NOT CHANGE!
+
+nc: 5 # the number of different objects to be trained on. Basically the length of the array below
+names: ['Basketball',
+'Football',
+'Bike',
+'Stop Sign',
+'Baseball'] # an array of all the different combination names
+
+#"datasets_dir": "C:\\Users\\smbro\\repos\\bv2425ObjectDetection\\ShapeModel\\Training\\data",
