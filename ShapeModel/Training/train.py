@@ -11,10 +11,15 @@ yaml_path = 'C:\\Users\\smbro\\repos\\bv2425ObjectDetection\\ShapeModel\\Trainin
 
 n_epochs = 30
 bs = 4
+#bs = -1
 gpu_id = 0
+#gpu_id = [0,1]
+#gpu_id = cpu
 imgSize = 1920
 waitNum = 5
 workerNum = 1
+#workerNum = torch.cuda.device_count()
+#workerNum = os.cpu_count()
 OptimizerChoice = 'auto'
 validate = True
 
